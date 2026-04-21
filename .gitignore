@@ -1,0 +1,102 @@
+# =============================================
+# Python / Django (qrcode_attendance)
+# =============================================
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+*.whl
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables
+qrcode_attendance/.env
+qrcode_attendance/.env.example
+
+# Documentation & scripts
+qrcode_attendance/*.md
+# qrcode_attendance/seed_date.py
+# qrcode_attendance/requirements.txt
+
+# =============================================
+# Flutter / Dart (pointage_pro)
+# =============================================
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+pointage_pro/screenshot/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code (uncomment if needed)
+# .vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+pubspec.lock
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio build artifacts
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+**/android/app/*.jks
+**/android/app/*.keystore
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# =============================================
+# General / IDE
+# =============================================
+*.bak
+*.tmp
+*.temp
+.env
+.env.local
+.env.*.local
+Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
