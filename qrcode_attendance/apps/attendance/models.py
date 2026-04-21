@@ -156,22 +156,24 @@ class Attendance(models.Model):
         """
         from django.conf import settings as django_settings
 
-        work_start = self.check_in_time.replace(
+        # Convertir en heure locale pour comparer correctement
+        local_checkin = timezone.localtime(self.check_in_time)
+        work_start = local_checkin.replace(
             hour=django_settings.WORK_START_HOUR,
             minute=django_settings.WORK_START_MINUTE,
             second=0,
             microsecond=0
         )
-        if self.check_in_time > work_start:
-            delta = self.check_in_time - work_start
+        if local_checkin > work_start:
+            delta = local_checkin - work_start
             return int(delta.total_seconds() / 60)
         return 0
 
     # ── Surcharge save ──
     def save(self, *args, **kwargs):
-        # 1. Date toujours dérivée du check_in_time
+        # 1. Date toujours dérivée du check_in_time EN HEURE LOCALE
         if self.check_in_time:
-            self.date = self.check_in_time.date()
+            self.date = timezone.localtime(self.check_in_time).date()
 
         # 2. Calcul du retard au check-in
         if self.check_in_time and self.late_minutes == 0:

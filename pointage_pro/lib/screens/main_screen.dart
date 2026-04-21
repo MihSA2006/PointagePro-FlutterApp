@@ -59,22 +59,22 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
-              label: 'Home',
+              label: 'Accueil',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.qr_code_scanner_outlined),
               activeIcon: Icon(Icons.qr_code_scanner),
-              label: 'Check-in/out',
+              label: 'Pointage',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.history_outlined),
               activeIcon: Icon(Icons.history),
-              label: 'History',
+              label: 'Historique',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
               activeIcon: Icon(Icons.person),
-              label: 'Profile',
+              label: 'Profil',
             ),
           ],
         ),

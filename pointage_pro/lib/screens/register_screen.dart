@@ -40,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load departments: $e')),
+          SnackBar(content: Text('Échec du chargement des départements: $e')),
         );
       }
     }
@@ -54,7 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || _selectedDepartmentId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(content: Text('Veuillez remplir tous les champs')),
       );
       return;
     }
@@ -75,12 +75,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created successfully! Please login.')),
+          const SnackBar(content: Text('Compte créé avec succès ! Veuillez vous connecter.')),
         );
         Navigator.pop(context); // Go back to login
       }
     } on DioException catch (e) {
-      String message = 'An error occurred';
+      String message = 'Une erreur est survenue';
       if (e.response?.data != null && e.response?.data is Map) {
         final data = e.response?.data;
         if (data is Map) {
@@ -104,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Erreur: $e')),
         );
       }
     } finally {
@@ -151,32 +151,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo / Title
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'jacklyn',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'employee',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 24,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
+                      // Logo
+                      Image.asset(
+                        'assets/images/logo_pointagepro.png',
+                        height: 60,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'PointagePro',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Create your account to get started',
+                        'Créez votre compte pour commencer',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.6),
@@ -187,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                       // First Name Field
                       _buildTextField(
-                        label: 'First Name',
+                        label: 'Prénom',
                         hint: 'John',
                         controller: _firstNameController,
                         icon: Icons.person_outline,
@@ -196,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       // Last Name Field
                       _buildTextField(
-                        label: 'Last Name',
+                        label: 'Nom',
                         hint: 'Doe',
                         controller: _lastNameController,
                         icon: Icons.person_outline,
@@ -214,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                       // Password Field
                       _buildTextField(
-                        label: 'Password',
+                        label: 'Mot de passe',
                         hint: '********',
                         controller: _passwordController,
                         icon: Icons.lock_outline,
@@ -230,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       // Department Field
                       _buildDropdownField(
-                        label: 'Department',
+                        label: 'Département',
                         value: _selectedDepartmentId,
                         items: _departments,
                         isLoading: _isFetchingDepartments,
@@ -273,7 +265,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     Icon(Icons.person_add_outlined, size: 20),
                                     SizedBox(width: 12),
                                     Text(
-                                      'Register',
+                                      'S\'inscrire',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -291,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Already have an account?",
+                            "Vous avez déjà un compte ?",
                             style: TextStyle(color: Colors.white.withOpacity(0.6)),
                           ),
                           TextButton(
@@ -299,7 +291,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Navigator.pop(context);
                             },
                             child: const Text(
-                              'Login',
+                              'Se connecter',
                               style: TextStyle(
                                 color: Color(0xFFC89664),
                                 fontWeight: FontWeight.bold,
@@ -419,7 +411,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: DropdownButton<String>(
               value: value,
               hint: Text(
-                isLoading ? 'Loading...' : 'Select Department',
+                isLoading ? 'Chargement...' : 'Sélectionnez un département',
                 style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 16),
               ),
               dropdownColor: const Color(0xFF021C3B),

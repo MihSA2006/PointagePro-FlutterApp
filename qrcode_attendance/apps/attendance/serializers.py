@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
 from django.utils import timezone
+from datetime import timedelta
 
 from apps.core.utils import (
     compute_checkin_qr_expiry,
@@ -35,10 +36,16 @@ class QRCodeCreateSerializer(serializers.ModelSerializer):
         qr_type = attrs.get("type")
         today   = timezone.localdate()
         
+        # Filtrage par plage horaire locale (évite les bugs UTC/local)
+        local_now = timezone.localtime()
+        today_start = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
+        
         # Vérifier si un QR Code de ce type existe déjà pour aujourd'hui
         exists = QRCodeSession.objects.filter(
             type=qr_type,
-            created_at__date=today
+            created_at__gte=today_start,
+            created_at__lt=today_end
         ).exists()
         
         if exists:

@@ -57,7 +57,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 const SizedBox(height: 40),
                 // Title
                 const Text(
-                  'QR Check',
+                  'PointagePro',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -68,7 +68,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 const SizedBox(height: 12),
                 // Description
                 const Text(
-                  'Effortless attendance starts here. One scan for quick and secure check-in or check-out.',
+                  'Le pointage commence ici. Scannez pour une entrée ou sortie rapide et sécurisée.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white70,
@@ -108,7 +108,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       shadowColor: ( _isScannerActive ? Colors.red : const Color(0xFFEB721B)).withOpacity(0.4),
                     ),
                     child: Text(
-                      _isScannerActive ? 'Cancel' : 'Check',
+                      _isScannerActive ? 'Annuler' : 'Pointer',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -195,7 +195,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
       if (mounted) {
         _showSuccessDialog(
-          message: data['message'] ?? 'Check-in successful!',
+          message: data['message'] ?? 'Pointage réussi !',
           isCheckIn: data['message'].toString().toLowerCase().contains('check-in'),
           details: data['data'],
         );
@@ -204,7 +204,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       // Close loading dialog
       if (mounted) Navigator.pop(context);
 
-      String message = 'Scanning failed';
+      String message = 'Échec du scan';
       if (e.response?.data != null && e.response?.data is Map) {
         message = e.response?.data['detail'] ?? e.response?.data['message'] ?? message;
       }
@@ -265,7 +265,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               if (details != null) ...[
                 const SizedBox(height: 16),
                 Text(
-                  isCheckIn ? 'Time: ${details['check_in_time_display'] ?? ""}' : 'Duration: ${details['work_duration_display'] ?? ""}',
+                  isCheckIn ? 'Heure : ${details['check_in_time_display'] ?? ""}' : 'Durée : ${details['work_duration_display'] ?? ""}',
                   style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
                 ),
               ],
@@ -278,7 +278,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     backgroundColor: const Color(0xFFEB721B),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Great!'),
+                  child: const Text('Génial !'),
                 ),
               ),
             ],
@@ -315,7 +315,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     backgroundColor: Colors.white.withOpacity(0.1),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Try Again', style: TextStyle(color: Colors.white)),
+                  child: const Text('Réessayer', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],

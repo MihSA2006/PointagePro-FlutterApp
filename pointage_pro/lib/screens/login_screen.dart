@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
+        const SnackBar(content: Text('Veuillez entrer votre email et votre mot de passe')),
       );
       return;
     }
@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } on DioException catch (e) {
-      String message = 'An error occurred';
+      String message = 'Une erreur est survenue';
       if (e.response?.data != null && e.response?.data is Map) {
         message = e.response?.data['detail'] ?? e.response?.data['message'] ?? message;
       }
@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Erreur: $e')),
         );
       }
     } finally {
@@ -101,32 +101,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo / Title
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'jacklyn',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'employee',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 24,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
+                      // Logo
+                      Image.asset(
+                        'assets/images/logo_pointagepro.png',
+                        height: 80,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'PointagePro',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Login to your personal space',
+                        'Connectez-vous à votre espace personnel',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.6),
@@ -146,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       
                       // Password Field
                       _buildTextField(
-                        label: 'Password',
+                        label: 'Mot de passe',
                         hint: '********',
                         controller: _passwordController,
                         icon: Icons.lock_outline,
@@ -191,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Icon(Icons.login, size: 20),
                                     SizedBox(width: 12),
                                     Text(
-                                      'Login',
+                                      'Se connecter',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -208,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: () {},
                         child: Text(
-                          'Forgot password?',
+                          'Mot de passe oublié ?',
                           style: TextStyle(
                             color: const Color(0xFFC89664).withOpacity(0.8),
                             fontSize: 14,
@@ -223,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Don't have an account?",
+                            "Vous n'avez pas de compte ?",
                             style: TextStyle(color: Colors.white.withOpacity(0.6)),
                           ),
                           TextButton(
@@ -234,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               );
                             },
                             child: const Text(
-                              'Register',
+                              'S\'inscrire',
                               style: TextStyle(
                                 color: Color(0xFFC89664),
                                 fontWeight: FontWeight.bold,

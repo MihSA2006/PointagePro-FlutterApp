@@ -14,18 +14,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<Map<String, String>> _onboardingData = [
     {
-      'title': 'Track your attendance',
-      'subtitle': 'Simple and fast check-in system',
+      'title': 'Suivez votre présence',
+      'subtitle': 'Système de pointage simple et rapide',
       'image': 'assets/images/onboarding_img1.png',
     },
     {
-      'title': 'Scan to check in & out',
-      'subtitle': 'Secure and instant tracking',
+      'title': 'Scannez pour entrer et sortir',
+      'subtitle': 'Suivi sécurisé et instantané',
       'image': 'assets/images/onboarding_img2.png',
     },
     {
-      'title': 'Stay updated',
-      'subtitle': 'View your attendance status anytime',
+      'title': 'Restez à jour',
+      'subtitle': 'Consultez votre statut de présence à tout moment',
       'image': 'assets/images/onboarding_img3.png',
     },
   ];
@@ -60,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         );
                       },
                       child: const Text(
-                        'Skip',
+                        'Passer',
                         style: TextStyle(
                           color: Colors.white60,
                           fontSize: 16,
@@ -131,8 +131,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       child: Text(
                         _currentPage == _onboardingData.length - 1
-                            ? 'Get Started'
-                            : 'Next',
+                            ? 'Commencer'
+                            : 'Suivant',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

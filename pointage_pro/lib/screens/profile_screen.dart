@@ -35,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load profile: $e')),
+          SnackBar(content: Text('Échec du chargement du profil : $e')),
         );
       }
     }
@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Logout failed: $e')),
+          SnackBar(content: Text('Échec de la déconnexion : $e')),
         );
       }
     }
@@ -142,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user['full_name'] ?? 'User Name',
+                    user['full_name'] ?? 'Nom d\'utilisateur',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -150,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   Text(
-                    user['role']?.toString().toUpperCase() ?? 'EMPLOYEE',
+                    user['role']?.toString().toUpperCase() ?? 'EMPLOYÉ',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.6),
                       fontSize: 14,
@@ -179,13 +179,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: Column(
                         children: [
-                          _buildInfoRow('Full Name', user['full_name'] ?? '-'),
+                          _buildInfoRow('Nom complet', user['full_name'] ?? '-'),
                           _buildDivider(),
                           _buildInfoRow('Email', user['email'] ?? '-'),
                           _buildDivider(),
-                          _buildInfoRow('Department', user['department']?.toString() ?? '-'),
+                          _buildInfoRow('Département', user['department']?.toString() ?? '-'),
                           _buildDivider(),
-                          _buildInfoRow('Status', (user['is_active'] ?? false) ? 'Active' : 'Inactive'),
+                          _buildInfoRow('Statut', (user['is_active'] ?? false) ? 'Actif' : 'Inactif'),
                         ],
                       ),
                     ),
@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Actions
                     _buildActionItem(
                       icon: Icons.person_outline,
-                      title: 'Edit Profile',
+                      title: 'Modifier le profil',
                       color: Colors.tealAccent,
                       onTap: () async {
                         final result = await Navigator.push(
@@ -212,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 12),
                     _buildActionItem(
                       icon: Icons.lock_outline,
-                      title: 'Change Password',
+                      title: 'Changer le mot de passe',
                       color: Colors.orangeAccent,
                       onTap: () {
                         Navigator.push(
@@ -226,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 12),
                     _buildActionItem(
                       icon: Icons.logout,
-                      title: 'Logout',
+                      title: 'Déconnexion',
                       color: Colors.redAccent,
                       onTap: _handleLogout,
                     ),

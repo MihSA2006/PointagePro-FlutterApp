@@ -33,7 +33,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load history: $e')),
+          SnackBar(content: Text('Échec du chargement de l\'historique : $e')),
         );
       }
     }
@@ -50,7 +50,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   String _formatDate(String? dateStr) {
-    if (dateStr == null) return 'Unknown Date';
+    if (dateStr == null) return 'Date inconnue';
     try {
       final date = DateTime.parse(dateStr);
       return DateFormat('EEEE, MMM d').format(date);
@@ -73,8 +73,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   String _getStatusLabel(String status, bool isLate) {
-    if (status.toLowerCase() == 'completed' && isLate) return 'Late';
-    if (status.toLowerCase() == 'completed') return 'On Time';
+    if (status.toLowerCase() == 'completed' && isLate) return 'Retard';
+    if (status.toLowerCase() == 'completed') return 'À l\'heure';
+    if (status.toLowerCase() == 'active') return 'En cours';
+    if (status.toLowerCase() == 'absent') return 'Absent';
     return status.toUpperCase();
   }
 
@@ -107,7 +109,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Attendance',
+                      'Pointages',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -115,7 +117,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ),
                     Text(
-                      'Your activity log',
+                      'Votre journal d\'activité',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.5),
                         fontSize: 16,
@@ -132,7 +134,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator(color: Color(0xFFEB721B)))
                     : _history.isEmpty
-                        ? const Center(child: Text('No history found', style: TextStyle(color: Colors.white70)))
+                        ? const Center(child: Text('Aucun historique trouvé', style: TextStyle(color: Colors.white70)))
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             itemCount: _history.length,
@@ -203,11 +205,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Check In
-              _buildTimeInfo('Check In', _formatTime(item['check_in_time']), Icons.login_rounded, Colors.greenAccent),
+              _buildTimeInfo('Entrée', _formatTime(item['check_in_time']), Icons.login_rounded, Colors.greenAccent),
               // Check Out
-              _buildTimeInfo('Check Out', _formatTime(item['check_out_time']), Icons.logout_rounded, Colors.redAccent),
+              _buildTimeInfo('Sortie', _formatTime(item['check_out_time']), Icons.logout_rounded, Colors.redAccent),
               // Duration
-              _buildTimeInfo('Duration', item['work_duration_display'] ?? '0h 00', Icons.timer_outlined, const Color(0xFFC89664)),
+              _buildTimeInfo('Durée', item['work_duration_display'] ?? '0h 00', Icons.timer_outlined, const Color(0xFFC89664)),
             ],
           ),
           if (isLate && item['status']?.toLowerCase() != 'absent')
@@ -218,7 +220,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   const Icon(Icons.warning_amber_rounded, color: Color(0xFFEB721B), size: 14),
                   const SizedBox(width: 4),
                   Text(
-                    'Late by ${item['late_minutes'] ?? 0}m',
+                    'Retard de ${item['late_minutes'] ?? 0}m',
                     style: const TextStyle(
                       color: Color(0xFFEB721B),
                       fontSize: 12,

@@ -13,4 +13,7 @@ urlpatterns = [
 
     # ── Admin métier ──
     path("api/admin/",       include("apps.attendance.urls_admin")),
+
+    # ── Admin Panel (Templates) ──
+    path("dashboard/",       include("apps.core.urls")),
 ]

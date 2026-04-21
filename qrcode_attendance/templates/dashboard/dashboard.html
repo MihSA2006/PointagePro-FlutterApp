@@ -1,0 +1,760 @@
+{% load static dashboard_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - PointagePro</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <span>PointagePro</span>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-label">Principal</div>
+                <div class="menu-item active" data-id="dashboard-main" onclick="showSection('dashboard-main', this)">
+                    <i class="fa-solid fa-chart-line"></i> Vue d'ensemble
+                </div>
+
+                <div class="menu-label">Organisation</div>
+                <div class="menu-item" data-id="employees" onclick="showSection('employees', this)">
+                    <i class="fa-solid fa-users"></i> Effectif total
+                </div>
+                <div class="menu-item" data-id="departments" onclick="showSection('departments', this)">
+                    <i class="fa-solid fa-layer-group"></i> Départements
+                </div>
+                <div class="menu-item" data-id="qrcodes" onclick="showSection('qrcodes', this)">
+                    <i class="fa-solid fa-qrcode"></i> Borne QR Code
+                </div>
+
+                <div class="menu-label">Rapports</div>
+                <div class="menu-item" data-id="history" onclick="showSection('history', this)">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Historique global
+                </div>
+                <div class="menu-item" data-id="all-attendance" onclick="showSection('all-attendance', this)">
+                    <i class="fa-solid fa-calendar-check"></i> Pointages du jour
+                </div>
+            </div>
+
+            <div style="padding: 1.5rem; border-top: 1px solid var(--clr-border);">
+                <a href="{% url 'dashboard:logout' %}"
+                    style="display: flex; align-items: center; gap: 0.75rem; color: var(--clr-danger); font-weight: 600; font-size: 0.9rem;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Navbar -->
+            <nav class="navbar">
+                <div class="navbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div style="color: var(--clr-text-muted); font-size: 0.9rem; font-weight: 500;">
+                        <span id="displayDate">Chargement...</span>
+                    </div>
+                </div>
+
+                <div class="navbar-right">
+                    <div class="nav-icon">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="nav-indicator"></span>
+                    </div>
+
+                    <div class="admin-profile">
+                        <div class="profile-info" style="text-align: right;">
+                            <span class="profile-name">{{ user.get_full_name|default:user.email }}</span>
+                            <span class="profile-role">Super Administrateur</span>
+                        </div>
+                        <div class="profile-img">
+                            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <main class="content-area">
+
+                {% if messages %}
+                <div style="margin-bottom: 2rem;">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}"
+                        style="margin-bottom: 1rem; position: relative; animation: fadeIn 0.3s ease;">
+                        <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% else %}fa-circle-exclamation{% endif %}"
+                            style="margin-right: 0.5rem;"></i>
+                        {{ message }}
+                        <button type="button" onclick="this.parentElement.remove()"
+                            style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: inherit; cursor: pointer; font-size: 1.2rem;">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Vue d'ensemble -->
+                <section id="dashboard-main" class="dashboard-section active">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h2>Tableau de bord</h2>
+                            <p>Suivi en temps réel de votre entreprise</p>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button class="btn btn-primary"
+                                onclick="showSection('qrcodes', document.querySelector('[data-id=\'qrcodes\']'))">
+                                <i class="fa-solid fa-bolt"></i> Borne Active
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon primary"><i class="fa-solid fa-users"></i></div>
+                                <span class="stat-trend trend-up">Effectif</span>
+                            </div>
+                            <div class="stat-details">
+                                <h3>{{ total_employees }}</h3>
+                                <p>Salariés enregistrés</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon success"><i class="fa-solid fa-user-check"></i></div>
+                                <span class="stat-trend trend-up">Aujourd'hui</span>
+                            </div>
+                            <div class="stat-details">
+                                <h3>{{ present_today }}</h3>
+                                <p>Pointages effectués</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon accent"><i class="fa-solid fa-user-clock"></i></div>
+                                <span class="stat-trend" style="background:#FEE2E2; color:#B91C1C;">Théorique</span>
+                            </div>
+                            <div class="stat-details">
+                                <h3>{{ absent_today }}</h3>
+                                <p>Absences estimées</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon info"><i class="fa-solid fa-layer-group"></i></div>
+                            </div>
+                            <div class="stat-details">
+                                <h3>{{ total_departments }}</h3>
+                                <p>Services actifs</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activités Récentes -->
+                    <div class="card-table">
+                        <div class="card-header">
+                            <h3>Activités récentes</h3>
+                            <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
+                                onclick="showSection('all-attendance', document.querySelector('[data-id=\'all-attendance\']'))">Voir
+                                tout</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employé</th>
+                                        <th>Service</th>
+                                        <th>Heure</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendance in recent_attendances %}
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="profile-img" style="width:32px; height:32px; font-size:0.7rem;">{{ attendance.employee|initials }}</div>
+                                                <div class="user-info">
+                                                    <span class="name">{{ attendance.employee.full_name }}</span>
+                                                    <span class="email">{{ attendance.employee.email }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span style="font-weight: 500;">{{ attendance.employee|dept_name }}</span></td>
+                                        <td>{{ attendance.check_in_time|date:"H:i" }}</td>
+                                        <td>
+                                            {% if attendance.status == 'active' %}
+                                            <span class="badge" style="background:#E0F2FE; color:#0369A1;">Entrée</span>
+                                            {% else %}
+                                            <span class="badge" style="background:#F1F5F9; color:#475569;">Sortie</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance.late_minutes > 0 %}
+                                            <span class="badge badge-warning">{{ attendance|late_badge }}</span>
+                                            {% else %}
+                                            <span class="badge badge-success">À l'heure</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5"
+                                            style="text-align: center; color: var(--clr-text-muted); padding: 3rem;">
+                                            Aucune activité enregistrée pour le moment.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gestion Effectif -->
+                <section id="employees" class="dashboard-section">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h2>Effectif complet</h2>
+                            <p>Gérez les comptes de vos collaborateurs</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('addEmployeeModal')">
+                            <i class="fa-solid fa-plus"></i> Nouveau salarié
+                        </button>
+                    </div>
+
+                    <form method="GET" action="#employees" class="toolbar">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" name="q_emp" value="{{ q_emp }}" class="form-control"
+                                placeholder="Rechercher par nom ou email...">
+                        </div>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <select name="dept_id" class="form-control" style="width: auto;"
+                                onchange="this.form.submit()">
+                                <option value="all">Tous les services</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}" {% if dept.is_selected %}selected{% endif %}>{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fa-solid fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="card-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Collaborateur</th>
+                                        <th>Service</th>
+                                        <th>Date d'inscription</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for emp in employees_list %}
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="profile-img" style="width:36px; height:36px;">
+                                                    {{ emp.first_name|slice:":1" }}{{ emp.last_name|slice:":1" }}
+                                                </div>
+                                                <div class="user-info">
+                                                    <span class="name">{{ emp.full_name }}</span>
+                                                    <span class="email">{{ emp.email }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ emp.department.name|default:"Non affecté" }}</td>
+                                        <td class="text-muted">{{ emp.created_at|date:"d M Y" }}</td>
+                                        <td>
+                                            {% if emp.is_active %}
+                                            <span class="badge badge-success">Actif</span>
+                                            {% else %}
+                                            <span class="badge badge-danger">Bloqué</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="action-btns">
+                                                <button class="btn-icon"><i class="fa-solid fa-pen"></i></button>
+                                                <button class="btn-icon delete"><i
+                                                        class="fa-solid fa-trash-can"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5"
+                                            style="text-align: center; color: var(--clr-text-muted); padding: 3rem;">
+                                            Aucun salarié trouvé pour cette recherche.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Statistiques / Historique Global -->
+                <section id="history" class="dashboard-section">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h2>Historique global</h2>
+                            <p>Consultation et filtrage des archives</p>
+                        </div>
+                    </div>
+
+                    <form method="GET" action="#history" class="toolbar">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" name="q_hist" value="{{ q_hist }}" class="form-control"
+                                placeholder="Rechercher un pointage...">
+                        </div>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <input type="date" name="date_start" value="{{ date_start }}" class="form-control"
+                                style="width: auto;">
+                            <input type="date" name="date_end" value="{{ date_end }}" class="form-control"
+                                style="width: auto;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-filter"></i> Filtrer
+                            </button>
+                            <a href="?#history" class="btn btn-secondary">Réinitialiser</a>
+                        </div>
+                    </form>
+
+                    <div class="card-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Employé</th>
+                                        <th>Entrée</th>
+                                        <th>Sortie</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendance in history_list %}
+                                    <tr>
+                                        <td><strong>{{ attendance.date|date:"d/m/Y" }}</strong></td>
+                                        <td>{{ attendance.employee.full_name }}</td>
+                                        <td>{{ attendance.check_in_time|date:"H:i" }}</td>
+                                        <td>{{ attendance.check_out_time|date:"H:i"|default:"--" }}</td>
+                                        <td>
+                                            {% if attendance.late_minutes > 0 %}
+                                            <span class="badge badge-warning">{{ attendance|late_badge }}</span>
+                                            {% else %}
+                                            <span class="badge badge-success">À l'heure</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5"
+                                            style="text-align: center; color: var(--clr-text-muted); padding: 4rem;">
+                                            Aucun enregistrement ne correspond aux critères sélectionnés.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pointages du Jour -->
+                <section id="all-attendance" class="dashboard-section">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h2>Pointages du jour</h2>
+                            <p>Registre exclusif de la journée du <strong>{% now "d/m/Y" %}</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="card-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Collaborateur</th>
+                                        <th>Service</th>
+                                        <th>Arrivée</th>
+                                        <th>Départ</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendance in today_attendances %}
+                                    <tr>
+                                        <td>
+                                            <div class="user-cell">
+                                                <div class="profile-img" style="width:32px; height:32px;">
+                                                    {{ attendance.employee|initials }}
+                                                </div>
+                                                <span class="name">{{ attendance.employee.full_name }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ attendance.employee.department.name }}</td>
+                                        <td>{{ attendance.check_in_time|date:"H:i" }}</td>
+                                        <td>{{ attendance.check_out_time|time_fmt|default:"<span style='opacity:0.3;'>En cours</span>"|safe }}</td>
+                                        <td>
+                                            {% if attendance.late_minutes > 0 %}
+                                            <span class="badge badge-warning">Retard</span>
+                                            {% else %}
+                                            <span class="badge badge-success">Présent</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5"
+                                            style="text-align: center; color: var(--clr-text-muted); padding: 5rem; background: #F8FAFC;">
+                                            <div style="opacity: 0.5; margin-bottom: 1rem;">
+                                                <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem;"></i>
+                                            </div>
+                                            <h3>Aucun pointage aujourd'hui</h3>
+                                            <p>Les données apparaîtront dès que le premier scan sera effectué.</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Borne QR -->
+                <section id="qrcodes" class="dashboard-section">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h2>Borne de pointage</h2>
+                            <p>Système de scan haute disponibilité</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem;">
+                        <div class="card-table" style="padding: 2.5rem;">
+                            <h3 style="margin-bottom: 2rem;">Paramètres de session</h3>
+                            <div class="form-group">
+                                <label class="form-label">Type de scan</label>
+                                <select class="form-control" id="qrType">
+                                    <option value="CHECK_IN">Arrivée (Check-IN)</option>
+                                    <option value="CHECK_OUT">Départ (Check-OUT)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 1rem;"
+                                onclick="generateQR()">
+                                <i class="fa-solid fa-rotate"></i> Générer un nouveau jeton
+                            </button>
+                        </div>
+
+                        <div class="generator-card">
+                            <div id="qrPlaceholder" class="qr-placeholder" {% if today_qrcodes %}style="display:none;"
+                                {% endif %}>
+                                <i class="fa-solid fa-fingerprint" style="font-size: 5rem; opacity: 0.1;"></i>
+                                <p style="font-weight: 500; opacity: 0.4;">Générez un code pour activer la borne</p>
+                            </div>
+
+                            <div id="qrResult" {% if not today_qrcodes %}style="display: none;" {% endif %}>
+                                <div class="qr-result-box"
+                                    style="background: white; padding: 20px; border-radius: 15px; display: inline-block;">
+                                    <div id="qrcode-container"></div>
+                                    <div style="margin-top: 1rem; text-align: center;">
+                                        <span id="qrTokenLabel" class="badge"
+                                            style="background: var(--clr-primary-light); color: var(--clr-primary); font-family: monospace;">
+                                            {% if today_qrcodes.first %}{{ today_qrcodes.first.type }}{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center;">
+                                    <button class="btn btn-primary" onclick="window.print()">Imprimer</button>
+                                    <button class="btn btn-secondary" onclick="toggleFullScreen()">Plein écran</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liste des QR Codes du jour -->
+                    <div class="card-table" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3>Historique des jetons (Aujourd'hui)</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Heure</th>
+                                        <th>Type</th>
+                                        <th>Token</th>
+                                        <th>Expiration</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qrHistoryTable">
+                                    {% for qr in today_qrcodes %}
+                                    <tr>
+                                        <td>{{ qr.created_at|date:"H:i" }}</td>
+                                        <td>
+                                            {% if qr.type == 'CHECK_IN' %}
+                                            <span class="badge" style="background:#E0F2FE; color:#0369A1;">Entrée</span>
+                                            {% else %}
+                                            <span class="badge" style="background:#F1F5F9; color:#475569;">Sortie</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><code style="font-size: 0.8rem;">{{ qr.token|truncatechars:20 }}</code></td>
+                                        <td>
+                                            {% if qr.is_expired %}
+                                            <span class="badge badge-danger">Expiré</span>
+                                            {% else %}
+                                            <span class="badge badge-success">{{ qr|qr_expiry_text }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button class="btn-icon"
+                                                onclick="showQR('{{ qr.token }}', '{{ qr.type }}')">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr id="emptyHistoryRow">
+                                        <td colspan="5"
+                                            style="text-align: center; color: var(--clr-text-muted); padding: 2rem;">
+                                            Aucun jeton généré aujourd'hui.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="departments" class="dashboard-section">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h2>Départements</h2>
+                            <p>Structure de l'organisation</p>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        {% for dept in departments %}
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon info"><i class="fa-solid fa-building-user"></i></div>
+                            </div>
+                            <div class="stat-details">
+                                <h3>{{ dept.employees.count|default:0 }}</h3>
+                                <p>{{ dept.name }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Collaborateur -->
+    <div class="modal-overlay" id="addEmployeeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Ajouter un collaborateur</h3>
+                <button class="modal-close" onclick="closeModal('addEmployeeModal')">&times;</button>
+            </div>
+            <form action="{% url 'dashboard:add_employee' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" name="first_name" class="form-control" placeholder="Prénom" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nom</label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Nom" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-mail professionnel</label>
+                        <input type="email" name="email" class="form-control" placeholder="nom.prenom@entreprise.com"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Service</label>
+                        <select name="department" class="form-control" required>
+                            <option value="">Sélectionner un service</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('addEmployeeModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Navigation SPA + Gestion d'URL fragments
+        function showSection(sectionId, element) {
+            document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+
+            const activeSection = document.getElementById(sectionId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+                if (element) element.classList.add('active');
+                else {
+                    document.querySelector(`[onclick*='${sectionId}']`)?.classList.add('active');
+                }
+            }
+
+            document.getElementById('sidebar').classList.remove('open');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        // Au chargement : vérifier l'URL pour rester sur la bonne section après un submit de filtre (via fragments)
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '') || 'dashboard-main';
+            const menuItem = document.querySelector(`[data-id='${hash}']`);
+            showSection(hash, menuItem);
+
+            // Date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('displayDate').textContent = new Date().toLocaleDateString('fr-FR', options);
+        });
+
+        // Modals
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // QR Generation
+        let qrcode = null;
+
+        function updateQRCode(text) {
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = ""; // Clear
+            qrcode = new QRCode(container, {
+                text: text,
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Initialize latest QR if exists
+        window.addEventListener('load', () => {
+            {% if today_qrcodes.first %}
+            updateQRCode("{{ today_qrcodes.first.token }}");
+            {% endif %}
+        });
+
+        async function generateQR() {
+            const type = document.getElementById('qrType').value;
+            const placeholder = document.getElementById('qrPlaceholder');
+            const result = document.getElementById('qrResult');
+            const qrTokenLabel = document.getElementById('qrTokenLabel');
+
+            placeholder.style.display = 'flex';
+            placeholder.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size: 3rem; color: var(--clr-primary);"></i><p style="margin-top:1rem;">Génération sécurisée...</p>';
+
+            try {
+                const response = await fetch('/api/attendance/qrcodes/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ type: type })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || (errData.non_field_errors ? errData.non_field_errors[0] : 'Erreur lors de la génération'));
+                }
+
+                const data = await response.json();
+
+                updateQRCode(data.token);
+                qrTokenLabel.textContent = data.type;
+
+                placeholder.style.display = 'none';
+                result.style.display = 'block';
+
+                // Message de succès éphémère avant reload
+                placeholder.innerHTML = '<i class="fa-solid fa-circle-check" style="font-size: 3rem; color: var(--clr-success);"></i><p style="margin-top:1rem;">Jeton créé !</p>';
+                placeholder.style.display = 'flex';
+
+                setTimeout(() => window.location.reload(), 1500);
+
+            } catch (error) {
+                alert("Erreur: " + error.message);
+                placeholder.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--clr-danger);"></i><p style="margin-top:1rem;">' + error.message + '</p>';
+            }
+        }
+
+        function showQR(token, type) {
+            document.getElementById('qrPlaceholder').style.display = 'none';
+            document.getElementById('qrResult').style.display = 'block';
+            updateQRCode(token);
+            document.getElementById('qrTokenLabel').textContent = type;
+            window.scrollTo({ top: document.getElementById('qrcodes').offsetTop, behavior: 'smooth' });
+        }
+
+        function toggleFullScreen() {
+            const elem = document.getElementById('qrResult');
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        document.getElementById('menuToggle')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('open');
+        });
+    </script>
+</body>
+
+</html>
