@@ -14,16 +14,25 @@ except ImportError:
     sys.exit(1)
 
 # Setup Django
-sys.path.append('e:/Projet/Tous les projet mande/Flutter/qrcode_attendance')
+# sys.path.append('e:/Projet/Tous les projet mande/Flutter/qrcode_attendance')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
+
 
 from apps.employees.models import Employee, Department
 from apps.attendance.models import Attendance
 
 def seed_data():
+    # Vérification si les données existent déjà
+    if Employee.objects.count() > 1: # > 1 car l'admin peut déjà exister
+        print("--- Les données existent déjà. Fin du script de seeding. ---")
+        return
+
     fake = Faker('fr_FR')
     print("--- Démarrage du seed massif des données avec Faker ---")
+
 
     # 1. Création des 8 départements
     depts_names = [
