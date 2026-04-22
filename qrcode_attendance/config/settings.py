@@ -10,7 +10,22 @@ load_dotenv()
 # ─── Security ─────────────────────────────────────────────────────────────────
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
+
+ALLOWED_HOSTS_ENV = os.getenv("ALLOWED_HOSTS", "")
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS = ALLOWED_HOSTS_ENV.split(",")
+else:
+    ALLOWED_HOSTS = ["*"]
+
+# ─── CSRF / HTTPS pour Cloud Run ──────────────────────────────────────────────
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.run.app",
+    "https://*.googleusercontent.com",
+]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # ─── Applications ─────────────────────────────────────────────────────────────
 DJANGO_APPS = [
@@ -28,6 +43,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "django_filters",
     "corsheaders",
+    "whitenoise.runserver_nostatic",
 ]
 
 LOCAL_APPS = [
@@ -41,8 +57,9 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 # ─── Middleware ────────────────────────────────────────────────────────────────
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",          # CORS en premier
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -73,17 +90,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # ─── Database ────────────────────────────────────────────────────────────────
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME", "qrcode_attendance_db"),
-#         "USER": os.getenv("DB_USER", "postgres"),
-#         "PASSWORD": os.getenv("DB_PASSWORD", ""),
-#         "HOST": os.getenv("DB_HOST", "localhost"),
-#         "PORT": os.getenv("DB_PORT", "5432"),
-#     }
-# }
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -91,9 +97,8 @@ DATABASES = {
     }
 }
 
-
 # ─── Auth ─────────────────────────────────────────────────────────────────────
-AUTH_USER_MODEL = "employees.Employee"  # Notre modèle custom
+AUTH_USER_MODEL = "employees.Employee"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -131,8 +136,8 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(
         days=int(os.getenv("REFRESH_TOKEN_LIFETIME_DAYS", 7))
     ),
-    "ROTATE_REFRESH_TOKENS": True,        # Nouveau refresh token à chaque refresh
-    "BLACKLIST_AFTER_ROTATION": True,     # Ancien refresh token blacklisté
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
@@ -150,22 +155,24 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
 ]
 
-
 # ─── Business Rules ───────────────────────────────────────────────────────────
 WORK_START_HOUR = int(os.getenv("WORK_START_HOUR", 8))
 WORK_START_MINUTE = int(os.getenv("WORK_START_MINUTE", 0))
 
 # ─── Internationalization ─────────────────────────────────────────────────────
 LANGUAGE_CODE = "fr-fr"
-TIME_ZONE = "Indian/Antananarivo"   # UTC+3 Madagascar
+TIME_ZONE = "Indian/Antananarivo"
 USE_I18N = True
 USE_TZ = True
 
-# ─── Static ───────────────────────────────────────────────────────────────────
+# ─── Static (avec Whitenoise) ─────────────────────────────────────────────────
 STATIC_URL = "static/"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ─── Misc ─────────────────────────────────────────────────────────────────────
